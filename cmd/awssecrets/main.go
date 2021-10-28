@@ -16,6 +16,7 @@ func usage() {
 	fmt.Println("   get [key]          Get secret value")
 	fmt.Println("   set [key] [value]  Create/Update key")
 	fmt.Println("   del [key]          Delete secret")
+	fmt.Println("   list               List secret")
 }
 
 func main() {
@@ -70,6 +71,20 @@ func main() {
 		err = sm.Del(ctx, svc, key)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+	case "list":
+		if len(os.Args) != 2 {
+			usage()
+			return
+		}
+		ret, err := sm.List(ctx, svc)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, r := range ret {
+			fmt.Println(r)
 		}
 
 	default:

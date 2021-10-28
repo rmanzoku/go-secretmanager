@@ -9,6 +9,30 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager/types"
 )
 
+func List(ctx context.Context, svc *secretsmanager.Client) ([]string, error) {
+	params := &secretsmanager.ListSecretsInput{MaxResults: 100}
+
+	ret := []string{}
+	for {
+		out, err := svc.ListSecrets(ctx, params)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, s := range out.SecretList {
+			ret = append(ret, *s.Name)
+		}
+
+		if out.NextToken == nil {
+			break
+		}
+
+		params.NextToken = out.NextToken
+	}
+
+	return ret, nil
+}
+
 func Get(ctx context.Context, svc *secretsmanager.Client, key string) (string, error) {
 	params := &secretsmanager.GetSecretValueInput{
 		SecretId: aws.String(key),
